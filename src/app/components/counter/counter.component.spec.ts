@@ -65,6 +65,7 @@ describe('CounterComponent', () => {
       value: 3,
     });
     expect(emitted[0].id).toEqual(expect.any(String));
+    expect(Number.isNaN(Date.parse(emitted[0].createdAt))).toBe(false);
     expect(component.counterName).toBe('');
     expect(component.count).toBe(0);
   });
