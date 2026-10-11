@@ -8,7 +8,6 @@ describe('Tab1Page', () => {
   let component: Tab1Page;
   let fixture: ComponentFixture<Tab1Page>;
 
-  // Tab1Page pouze předává data službě, proto službu nahradíme jednoduchou náhradou.
   const counterServiceMock = {
     add: vi.fn(),
   };

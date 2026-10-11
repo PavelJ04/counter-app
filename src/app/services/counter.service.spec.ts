@@ -68,7 +68,6 @@ describe('CounterService', () => {
     expect(service.counters()).toEqual([]);
   });
 
-  // Scénář 1: načtení uložených dat
   it('should load saved counters from Preferences', async () => {
     getMock.mockResolvedValue({
       value: JSON.stringify([first, second]),
@@ -81,16 +80,13 @@ describe('CounterService', () => {
     expect(getMock).toHaveBeenCalledWith({ key: 'saved-counters' });
   });
 
-  // Scénář 2: přidání záznamu na začátek a uložení
   it('should add a counter to the beginning and persist it', async () => {
-    // V úložišti už je jeden starší záznam.
     getMock.mockResolvedValue({
       value: JSON.stringify([first]),
     });
 
     await service.add(second);
 
-    // Nový záznam je první, starší zůstal za ním.
     expect(service.counters()).toEqual([second, first]);
     expect(setMock).toHaveBeenCalledTimes(1);
     expect(setMock).toHaveBeenCalledWith({
@@ -99,7 +95,6 @@ describe('CounterService', () => {
     });
   });
 
-  // Scénář 3: odstranění jednoho záznamu
   it('should remove only the matching counter and persist the new state', async () => {
     getMock.mockResolvedValue({
       value: JSON.stringify([first, second]),
@@ -114,7 +109,6 @@ describe('CounterService', () => {
     });
   });
 
-  // Scénář 4: vymazání celé historie
   it('should clear the history and remove only its Preferences key', async () => {
     getMock.mockResolvedValue({
       value: JSON.stringify([first, second]),
@@ -125,17 +119,14 @@ describe('CounterService', () => {
     expect(service.counters()).toEqual([]);
     expect(removeMock).toHaveBeenCalledTimes(1);
     expect(removeMock).toHaveBeenCalledWith({ key: 'saved-counters' });
-    // Vymazání nemá zapisovat prázdné pole, ale odstranit klíč.
     expect(setMock).not.toHaveBeenCalled();
   });
 
-  // Scénář 5a: syntakticky neplatný JSON
   it('should recover from invalid JSON', async () => {
     getMock.mockResolvedValue({
       value: 'this is not a valid JSON',
     });
 
-    // Spy musí vzniknout před initialize(), jinak by volání nezachytil.
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     await service.initialize();
@@ -150,7 +141,6 @@ describe('CounterService', () => {
     errorSpy.mockRestore();
   });
 
-  // Scénář 5b: platný JSON, ale objekt místo pole
   it('should recover from valid JSON that is not an array', async () => {
     getMock.mockResolvedValue({
       value: JSON.stringify({ name: 'test' }),

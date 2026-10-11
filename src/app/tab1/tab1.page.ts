@@ -13,12 +13,10 @@ import { CounterService } from '../services/counter.service';
 export class Tab1Page {
   private readonly counterService = inject(CounterService);
 
-  // Text toastu; null znamená, že toast není zobrazený.
   readonly toastMessage = signal<string | null>(null);
 
   async onSaved(counter: SavedCounter): Promise<void> {
     await this.counterService.add(counter);
-    // Toast zobrazíme až po úspěšném dokončení uložení.
     this.toastMessage.set(`Počítadlo „${counter.name}“ bylo uloženo.`);
   }
 }

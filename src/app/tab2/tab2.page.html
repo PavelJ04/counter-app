@@ -25,6 +25,18 @@
       <span class="summary-label">Součet hodnot</span>
       <strong class="summary-value">{{ totalValue() }}</strong>
     </div>
+    <div class="summary-item positive">
+      <span class="summary-label">Kladné hodnoty</span>
+      <strong class="summary-value">{{ valueStats().positive }}</strong>
+    </div>
+    <div class="summary-item negative">
+      <span class="summary-label">Záporné hodnoty</span>
+      <strong class="summary-value">{{ valueStats().negative }}</strong>
+    </div>
+    <div class="summary-item zero">
+      <span class="summary-label">Nulové hodnoty</span>
+      <strong class="summary-value">{{ valueStats().zero }}</strong>
+    </div>
   </div>
 
   <div class="controls">

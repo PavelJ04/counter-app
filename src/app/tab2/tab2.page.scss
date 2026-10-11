@@ -38,6 +38,18 @@ ion-list,
   font-size: 1.5rem;
 }
 
+.summary-item.positive {
+  border-left: 4px solid var(--ion-color-success);
+}
+
+.summary-item.negative {
+  border-left: 4px solid var(--ion-color-danger);
+}
+
+.summary-item.zero {
+  border-left: 4px solid var(--ion-color-medium);
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;

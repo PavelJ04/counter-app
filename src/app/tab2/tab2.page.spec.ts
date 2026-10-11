@@ -9,7 +9,6 @@ describe('Tab2Page', () => {
   let component: Tab2Page;
   let fixture: ComponentFixture<Tab2Page>;
 
-  // Stránka čte signály služby, proto náhrada služby obsahuje vlastní signály.
   const countersState = signal<SavedCounter[]>([]);
   const counterServiceMock = {
     counters: countersState.asReadonly(),
@@ -80,7 +79,6 @@ describe('Tab2Page', () => {
 
     confirmButton?.handler?.();
 
-    // handler spouští asynchronní clear(); počkáme, až se toast nastaví.
     await vi.waitFor(() => {
       expect(component.toastMessage()).toBe('Historie byla vymazána.');
     });
@@ -90,7 +88,6 @@ describe('Tab2Page', () => {
   it('should not clear the history when the alert is cancelled', () => {
     const cancelButton = component.clearAlertButtons.find((button) => button.role === 'cancel');
 
-    // Tlačítko Zrušit existuje a nemá žádnou akci – jen zavře dialog.
     expect(cancelButton).toBeDefined();
     expect(cancelButton?.handler).toBeUndefined();
     expect(counterServiceMock.clear).not.toHaveBeenCalled();
@@ -102,6 +99,35 @@ describe('Tab2Page', () => {
 
     countersState.set([apple]);
     expect(component.totalValue()).toBe(5);
+  });
+
+  it('should count positive, negative and zero values', () => {
+    const negative: SavedCounter = {
+      id: 'negative',
+      name: 'Záporné',
+      value: -3,
+      createdAt: '2026-09-17T11:00:00.000Z',
+    };
+    countersState.set([apple, visitors, cars, negative]);
+
+    expect(component.valueStats()).toEqual({ positive: 2, negative: 1, zero: 1 });
+  });
+
+  it('should update value statistics when stored data change', () => {
+    countersState.set([apple, cars]);
+    expect(component.valueStats()).toEqual({ positive: 1, negative: 0, zero: 1 });
+
+    countersState.set([]);
+    expect(component.valueStats()).toEqual({ positive: 0, negative: 0, zero: 0 });
+  });
+
+  it('should count statistics from all records, not only the searched ones', () => {
+    countersState.set([apple, visitors, cars]);
+
+    component.searchTerm.set('Auta');
+
+    expect(component.visibleCounters()).toEqual([cars]);
+    expect(component.valueStats()).toEqual({ positive: 2, negative: 0, zero: 1 });
   });
 
   it('should search by name without case sensitivity', () => {
