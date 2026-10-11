@@ -19,6 +19,25 @@ describe('Tab2Page', () => {
     clear: vi.fn(),
   };
 
+  const apple: SavedCounter = {
+    id: 'apple',
+    name: 'Jablka',
+    value: 5,
+    createdAt: '2026-09-17T08:00:00.000Z',
+  };
+  const visitors: SavedCounter = {
+    id: 'visitors',
+    name: 'Návštěvníci',
+    value: 12,
+    createdAt: '2026-09-17T10:00:00.000Z',
+  };
+  const cars: SavedCounter = {
+    id: 'cars',
+    name: 'Auta',
+    value: 0,
+    createdAt: '2026-09-17T09:00:00.000Z',
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     countersState.set([]);
@@ -41,8 +60,52 @@ describe('Tab2Page', () => {
   });
 
   it('should remove one record through the service', async () => {
-    await component.remove('first');
+    await component.remove('apple');
 
-    expect(counterServiceMock.remove).toHaveBeenCalledWith('first');
+    expect(counterServiceMock.remove).toHaveBeenCalledWith('apple');
+  });
+
+  it('should sum values and react to data changes', () => {
+    countersState.set([apple, visitors, cars]);
+    expect(component.totalValue()).toBe(17);
+
+    countersState.set([apple]);
+    expect(component.totalValue()).toBe(5);
+  });
+
+  it('should search by name without case sensitivity', () => {
+    countersState.set([apple, visitors, cars]);
+
+    component.searchTerm.set('NÁVŠ');
+
+    expect(component.visibleCounters()).toEqual([visitors]);
+  });
+
+  it('should sort by the selected option', () => {
+    countersState.set([apple, visitors, cars]);
+
+    component.sortOption.set('newest');
+    expect(component.visibleCounters()).toEqual([visitors, cars, apple]);
+
+    component.sortOption.set('oldest');
+    expect(component.visibleCounters()).toEqual([apple, cars, visitors]);
+
+    component.sortOption.set('name');
+    expect(component.visibleCounters()).toEqual([cars, apple, visitors]);
+
+    component.sortOption.set('value-desc');
+    expect(component.visibleCounters()).toEqual([visitors, apple, cars]);
+
+    component.sortOption.set('value-asc');
+    expect(component.visibleCounters()).toEqual([cars, apple, visitors]);
+  });
+
+  it('should not change the order stored in the service', () => {
+    countersState.set([apple, visitors, cars]);
+
+    component.sortOption.set('name');
+    component.visibleCounters();
+
+    expect(counterServiceMock.counters()).toEqual([apple, visitors, cars]);
   });
 });

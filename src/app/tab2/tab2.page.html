@@ -20,8 +20,40 @@
     </ion-button>
   </div>
 
+  <div class="summary">
+    <div class="summary-item">
+      <span class="summary-label">Součet hodnot</span>
+      <strong class="summary-value">{{ totalValue() }}</strong>
+    </div>
+  </div>
+
+  <div class="controls">
+    <ion-searchbar
+      placeholder="Hledat podle názvu"
+      [debounce]="0"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event ?? '')"
+    ></ion-searchbar>
+
+    <ion-select
+      label="Řadit"
+      interface="popover"
+      [ngModel]="sortOption()"
+      (ngModelChange)="sortOption.set($event)"
+    >
+      <ion-select-option value="newest">Od nejnovějšího</ion-select-option>
+      <ion-select-option value="oldest">Od nejstaršího</ion-select-option>
+      <ion-select-option value="name">Podle názvu (A–Z)</ion-select-option>
+      <ion-select-option value="value-desc">Podle hodnoty (sestupně)</ion-select-option>
+      <ion-select-option value="value-asc">Podle hodnoty (vzestupně)</ion-select-option>
+    </ion-select>
+  </div>
+
+  @if (visibleCounters().length === 0) {
+  <p class="state-message">Hledanému názvu neodpovídá žádný záznam.</p>
+  } @else {
   <ion-list>
-    @for (counter of counterService.counters(); track counter.id) {
+    @for (counter of visibleCounters(); track counter.id) {
     <ion-item>
       <ion-label>
         <h2>{{ counter.name }}</h2>
@@ -42,5 +74,5 @@
     </ion-item>
     }
   </ion-list>
-  }
+  } }
 </ion-content>
