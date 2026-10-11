@@ -2,6 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
+  IonAlert,
   IonButton,
   IonContent,
   IonHeader,
@@ -14,12 +15,20 @@ import {
   IonSelectOption,
   IonSpinner,
   IonTitle,
+  IonToast,
   IonToolbar,
 } from '@ionic/angular';
 import { SavedCounter } from '../models/saved-counter';
 import { CounterService } from '../services/counter.service';
 
 export type SortOption = 'newest' | 'oldest' | 'name' | 'value-desc' | 'value-asc';
+
+// Tvar tlačítka pro ion-alert; vlastní typ, aby test mohl tlačítko najít a „stisknout“.
+export interface ConfirmAlertButton {
+  text: string;
+  role: 'cancel' | 'destructive';
+  handler?: () => void;
+}
 
 @Component({
   selector: 'app-tab2',
@@ -28,6 +37,7 @@ export type SortOption = 'newest' | 'oldest' | 'name' | 'value-desc' | 'value-as
   imports: [
     DatePipe,
     FormsModule,
+    IonAlert,
     IonButton,
     IonContent,
     IonHeader,
@@ -40,6 +50,7 @@ export type SortOption = 'newest' | 'oldest' | 'name' | 'value-desc' | 'value-as
     IonSelectOption,
     IonSpinner,
     IonTitle,
+    IonToast,
     IonToolbar,
   ],
 })
@@ -66,16 +77,42 @@ export class Tab2Page implements OnInit {
     return [...filtered].sort(this.comparator(this.sortOption()));
   });
 
+  // Potvrzovací dialog a toast jsou jen UI stránky; služba o nich nic neví.
+  readonly isClearAlertOpen = signal(false);
+  readonly toastMessage = signal<string | null>(null);
+
+  readonly clearAlertButtons: ConfirmAlertButton[] = [
+    {
+      text: 'Zrušit',
+      role: 'cancel',
+    },
+    {
+      text: 'Vymazat',
+      role: 'destructive',
+      handler: () => {
+        void this.clear();
+      },
+    },
+  ];
+
   async ngOnInit(): Promise<void> {
     await this.counterService.initialize();
   }
 
   async remove(id: string): Promise<void> {
     await this.counterService.remove(id);
+    this.toastMessage.set('Záznam byl odstraněn.');
   }
 
+  // Tlačítko „Vymazat vše“ historii nemaže hned, nejprve otevře ion-alert.
+  confirmClear(): void {
+    this.isClearAlertOpen.set(true);
+  }
+
+  // Volá se až po potvrzení v dialogu.
   async clear(): Promise<void> {
     await this.counterService.clear();
+    this.toastMessage.set('Historie byla vymazána.');
   }
 
   private comparator(option: SortOption): (a: SavedCounter, b: SavedCounter) => number {

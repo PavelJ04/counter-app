@@ -59,10 +59,41 @@ describe('Tab2Page', () => {
     expect(counterServiceMock.initialize).toHaveBeenCalledTimes(1);
   });
 
-  it('should remove one record through the service', async () => {
+  it('should remove one record through the service and show a toast', async () => {
     await component.remove('apple');
 
     expect(counterServiceMock.remove).toHaveBeenCalledWith('apple');
+    expect(component.toastMessage()).toBe('Záznam byl odstraněn.');
+  });
+
+  it('should only open the alert when "clear all" is clicked', () => {
+    component.confirmClear();
+
+    expect(component.isClearAlertOpen()).toBe(true);
+    expect(counterServiceMock.clear).not.toHaveBeenCalled();
+  });
+
+  it('should clear the history after confirmation in the alert', async () => {
+    const confirmButton = component.clearAlertButtons.find(
+      (button) => button.role === 'destructive',
+    );
+
+    confirmButton?.handler?.();
+
+    // handler spouští asynchronní clear(); počkáme, až se toast nastaví.
+    await vi.waitFor(() => {
+      expect(component.toastMessage()).toBe('Historie byla vymazána.');
+    });
+    expect(counterServiceMock.clear).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not clear the history when the alert is cancelled', () => {
+    const cancelButton = component.clearAlertButtons.find((button) => button.role === 'cancel');
+
+    // Tlačítko Zrušit existuje a nemá žádnou akci – jen zavře dialog.
+    expect(cancelButton).toBeDefined();
+    expect(cancelButton?.handler).toBeUndefined();
+    expect(counterServiceMock.clear).not.toHaveBeenCalled();
   });
 
   it('should sum values and react to data changes', () => {

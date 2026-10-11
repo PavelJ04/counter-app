@@ -15,7 +15,7 @@
   } @else {
   <div class="history-header">
     <p>Počet záznamů: {{ counterService.counters().length }}</p>
-    <ion-button color="danger" fill="outline" size="small" (click)="clear()">
+    <ion-button color="danger" fill="outline" size="small" (click)="confirmClear()">
       Vymazat vše
     </ion-button>
   </div>
@@ -75,4 +75,20 @@
     }
   </ion-list>
   } }
+
+  <ion-alert
+    header="Vymazat celou historii?"
+    message="Tuto akci nelze vrátit zpět."
+    [isOpen]="isClearAlertOpen()"
+    [buttons]="clearAlertButtons"
+    (didDismiss)="isClearAlertOpen.set(false)"
+  ></ion-alert>
+
+  <ion-toast
+    position="top"
+    [isOpen]="toastMessage() !== null"
+    [message]="toastMessage() ?? ''"
+    [duration]="2000"
+    (didDismiss)="toastMessage.set(null)"
+  ></ion-toast>
 </ion-content>

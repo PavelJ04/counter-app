@@ -42,4 +42,20 @@ describe('Tab1Page', () => {
 
     expect(counterServiceMock.add).toHaveBeenCalledWith(counter);
   });
+
+  it('should show a toast after a successful save', async () => {
+    expect(component.toastMessage()).toBeNull();
+
+    await component.onSaved(counter);
+
+    expect(component.toastMessage()).toContain('První');
+  });
+
+  it('should not show a toast when saving fails', async () => {
+    counterServiceMock.add.mockRejectedValue(new Error('Zápis selhal'));
+
+    await expect(component.onSaved(counter)).rejects.toThrow('Zápis selhal');
+
+    expect(component.toastMessage()).toBeNull();
+  });
 });
